@@ -1,9 +1,10 @@
 package com.theater.movies.controller;
 
 import com.theater.movies.enums.Status;
+import com.theater.movies.enums.Type;
 import com.theater.movies.model.CommonResponse;
 import com.theater.movies.model.Movie;
-import com.theater.movies.model.MovieListRequest;
+import com.theater.movies.model.MovieFilterRequest;
 import com.theater.movies.service.MovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/dashboard")
 @RequiredArgsConstructor
 public class MovieController {
 
@@ -24,20 +25,24 @@ public class MovieController {
     @GetMapping("/movies")
     public CommonResponse getMovies(@RequestParam(value = "offset", required = false) Long offset,
                                     @RequestParam(value = "limit", required = false) Integer limit,
-                                    @RequestParam(value = "filter_by", required = false) String filterBy,
-                                    @RequestParam(value = "filter", required = false) String filter,
+                                    @RequestParam(value = "status", required = false) Integer status,
+                                    @RequestParam(value = "title", required = false) String title,
+                                    @RequestParam(value = "type", required = false) String type,
+                                    @RequestParam(value = "created_at", required = false) String createdAt,
                                     @RequestParam(value = "sort_by", required = false) String sortBy,
                                     @RequestParam(value = "is_ascending", required = false) Boolean isAscending,
                                     @RequestParam(value = "is_before", required = false) Boolean isBefore,
                                     HttpServletRequest request) {
-        return movieService.getMovies(MovieListRequest.builder()
-                .filterBy(filterBy)
-                .filter(filter)
+        return movieService.getMovies(MovieFilterRequest.builder()
+                .status(Status.fromInteger(status))
+                .title(title)
+                .type(Type.fromString(type))
                 .isAscending(isAscending)
                 .isBefore(isBefore)
                 .sortBy(sortBy)
                 .limit(limit)
                 .offset(offset)
+                .createdAt(createdAt)
                 .build(), request);
     }
 
@@ -54,7 +59,7 @@ public class MovieController {
                                       @RequestParam("year") Integer year,
                                       @RequestParam("director") String director,
                                       @RequestParam("actors") String actors,
-                                      @RequestParam("type") Boolean type,
+                                      @RequestParam("type") String type,
                                       @RequestParam("confidential") Boolean confidential,
                                       @RequestParam("awards") List<String> awards,
                                       @RequestParam("imdb_score") BigDecimal imdbScore,
@@ -69,7 +74,7 @@ public class MovieController {
                 .image(image)
                 .content(content)
                 .year(year)
-                .type(type)
+                .type(Type.fromString(type))
                 .confidential(confidential)
                 .awards(awards)
                 .director(director)
@@ -94,7 +99,7 @@ public class MovieController {
                                       @RequestParam("year") Integer year,
                                       @RequestParam("director") String director,
                                       @RequestParam("actors") String actors,
-                                      @RequestParam("type") Boolean type,
+                                      @RequestParam("type") String type,
                                       @RequestParam("confidential") Boolean confidential,
                                       @RequestParam("awards") List<String> awards,
                                       @RequestParam("imdb_score") BigDecimal imdbScore,
@@ -110,7 +115,7 @@ public class MovieController {
                 .image(image)
                 .content(content)
                 .year(year)
-                .type(type)
+                .type(Type.fromString(type))
                 .confidential(confidential)
                 .awards(awards)
                 .director(director)

@@ -16,6 +16,7 @@ public enum Status {
     }
 
     public static Status fromInteger(Integer id) {
+        if (id == null) return ACTIVE;
         if (id == 0) return INACTIVE;
         return ACTIVE;
     }

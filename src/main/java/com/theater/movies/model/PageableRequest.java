@@ -1,12 +1,11 @@
 package com.theater.movies.model;
 
-import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Optional;
 
-@AllArgsConstructor
 @SuperBuilder
 public class PageableRequest {
 

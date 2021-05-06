@@ -3,17 +3,18 @@ package com.theater.movies.service;
 import com.theater.movies.entity.MovieEntity;
 import com.theater.movies.entity.OffsetBasedPageRequest;
 import com.theater.movies.enums.Status;
+import com.theater.movies.enums.Type;
 import com.theater.movies.exception.BadArgumentException;
 import com.theater.movies.exception.MovieNotFoundException;
 import com.theater.movies.model.*;
 import com.theater.movies.repository.MovieRepository;
 import com.theater.movies.util.ResponseBuilder;
+import com.theater.movies.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -24,11 +25,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static com.theater.movies.enums.Status.ACTIVE;
 import static com.theater.movies.util.DateUtil.parseStringDate;
 import static com.theater.movies.util.FileUtil.saveFile;
-import static com.theater.movies.util.PageRequestUtil.buildSort;
-import static com.theater.movies.util.PageRequestUtil.checkPageableRequestIfValid;
-import static com.theater.movies.util.ResponseBuilder.buildServerUri;
+import static com.theater.movies.util.PageRequestUtil.*;
+import static com.theater.movies.util.StringUtil.*;
 import static java.util.Optional.ofNullable;
 
 @Service
@@ -37,21 +38,21 @@ import static java.util.Optional.ofNullable;
 public class MovieService {
     private final MovieRepository movieRepository;
 
-    public Response getMovies(MovieListRequest movieListRequest,
+    public Response getMovies(MovieFilterRequest movieFilterRequest,
                               HttpServletRequest request) {
-        checkPageableRequestIfValid(movieListRequest);
+        checkPageableRequestIfValid(movieFilterRequest);
 
-        var pagedMovies = getPagedMovieEntity(movieListRequest);
+        var pagedMovies = getPagedMovieEntity(movieFilterRequest);
         var totalElements = pagedMovies.getTotalElements();
 
-        return ResponseBuilder.buildResponse(MovieListResponse.builder()
-                .movies(StreamSupport.stream(pagedMovies
+        return ResponseBuilder.buildResponse(ListResponse.builder()
+                .results(StreamSupport.stream(pagedMovies
                         .spliterator(), false)
                         .map(this::toModel)
                         .collect(Collectors.toList()))
                 .count(totalElements)
-                .next(buildNextUri(request, pagedMovies, movieListRequest.getLimit()))
-                .previous(buildPreviousUri(request, pagedMovies, movieListRequest))
+                .next(buildNextUri(request, pagedMovies, movieFilterRequest.getLimit()))
+                .previous(buildPreviousUri(request, pagedMovies, movieFilterRequest))
                 .build());
     }
 
@@ -60,7 +61,7 @@ public class MovieService {
     }
 
     public Response createMovie(Movie movie, HttpServletRequest request) {
-        if (!movie.getType() && movie.getConfidential()) {
+        if (movie.getType() == Type.PREVIOUS && movie.getConfidential()) {
             throw new BadArgumentException("Movie cannot be confidential if it is not ongoing.");
         }
 
@@ -74,10 +75,10 @@ public class MovieService {
                 .returnRate(Math.toIntExact(movie.getInvestment() * 100 / movie.getReturnValue()))
                 .returnValue(movie.getReturnValue())
                 .payback(movie.getPayback())
-                .ongoing(movie.getType())
+                .type(movie.getType().name())
                 .year(movie.getYear())
                 .investment(movie.getInvestment())
-                .status(Status.ACTIVE)
+                .status(ACTIVE)
                 .createdAt(LocalDateTime.now())
                 .createdBy(request.getUserPrincipal().getName())
                 .awards(String.join(",", movie.getAwards()))
@@ -98,11 +99,9 @@ public class MovieService {
 
     public Response updateMovie(Movie movie, HttpServletRequest request) {
         var movieEntity = getMovieById(movie.getId());
-
-        var type = ofNullable(movie.getType()).orElse(false);
         var confidential = ofNullable(movie.getConfidential()).orElse(false);
 
-        if (!type && confidential) {
+        if (movie.getType() == Type.PREVIOUS && confidential) {
             throw new BadArgumentException("Movie cannot be confidential if it is not ongoing.");
         }
 
@@ -129,7 +128,7 @@ public class MovieService {
         Optional.of(movie.getYear())
                 .ifPresent(movieEntity::setYear);
         Optional.of(movie.getType())
-                .ifPresent(movieEntity::setOngoing);
+                .ifPresent(type -> movieEntity.setType(type.name()));
         Optional.of(movie.getConfidential())
                 .ifPresent(movieEntity::setConfidential);
         Optional.of(movie.getContent())
@@ -151,52 +150,20 @@ public class MovieService {
         return ResponseBuilder.buildResponse(toModel(movieRepository.save(movieEntity)));
     }
 
-    private String buildPreviousUri(HttpServletRequest request, Page<MovieEntity> pagedMovies, MovieListRequest movieListRequest) {
-        var currentOffset = movieListRequest.getOffset();
-        if (pagedMovies.hasPrevious()) {
-            return buildServerUri(request, pagedMovies.previousPageable().getOffset(), Long.valueOf(movieListRequest.getLimit()));
-        } else if (currentOffset != 0) {
-            return buildServerUri(request, 0L, currentOffset);
-        }
-        return null;
-    }
 
-    private String buildNextUri(HttpServletRequest request, Page<MovieEntity> pagedMovies, Integer limit) {
-        if (pagedMovies.hasNext()) {
-            return buildServerUri(request, pagedMovies.nextPageable().getOffset(), Long.valueOf(limit));
-        }
-        return null;
-    }
 
-    private Page<MovieEntity> getPagedMovieEntity(MovieListRequest movieListRequest) {
-        switch (movieListRequest.getFilterBy()) {
-            case "title": return movieRepository.findAllByTitleLike(
-                    new OffsetBasedPageRequest(movieListRequest.getOffset(), movieListRequest.getLimit(),
-                            buildSort(movieListRequest)),
-                    movieListRequest.getFilter() + "%");
-            case "status": return movieRepository.findAllByStatus(
-                    new OffsetBasedPageRequest(movieListRequest.getOffset(), movieListRequest.getLimit(),
-                            buildSort(movieListRequest)),
-                    Status.fromInteger(Integer.valueOf(movieListRequest.getFilter())));
+    private Page<MovieEntity> getPagedMovieEntity(MovieFilterRequest movieFilterRequest) {
+        var typeString = Optional.ofNullable(movieFilterRequest.getType()).map(Type::getType).orElse(null);
+        var isBefore = Optional.ofNullable(movieFilterRequest.getIsBefore()).orElse(true);
 
-            case "type": return movieRepository.findAllByOngoing(
-                    new OffsetBasedPageRequest(movieListRequest.getOffset(), movieListRequest.getLimit(),
-                            buildSort(movieListRequest)),
-                    Boolean.parseBoolean(movieListRequest.getFilter()));
-            case "created_at":
-                var date = parseStringDate(movieListRequest.getFilter(), movieListRequest.getIsBefore());
-
-                if (movieListRequest.getIsBefore()) {
-                    return movieRepository.findAllByCreatedAtLessThanEqual(
-                            new OffsetBasedPageRequest(movieListRequest.getOffset(), movieListRequest.getLimit(),
-                                    buildSort(movieListRequest)), date);
-                }
-                return movieRepository.findAllByCreatedAtGreaterThanEqual(
-                        new OffsetBasedPageRequest(movieListRequest.getOffset(), movieListRequest.getLimit(),
-                                buildSort(movieListRequest)), date);
-
-            default: return movieRepository.findAll(new OffsetBasedPageRequest(movieListRequest.getOffset(), movieListRequest.getLimit(),
-                    buildSort(movieListRequest)));
+        if (isBefore) {
+            return movieRepository.findAllByTitleAndTypeAndCreatedAtGreaterThanEqualAndStatus(addPercentToString(movieFilterRequest.getTitle()), typeString,
+                    parseStringDate(movieFilterRequest.getCreatedAt(), movieFilterRequest.getIsBefore()), movieFilterRequest.getStatus(),
+                    new OffsetBasedPageRequest(movieFilterRequest.getOffset(), movieFilterRequest.getLimit(), buildSort(movieFilterRequest)));
+        } else {
+            return movieRepository.findAllByTitleAndTypeAndCreatedAtLessThanEqualAndStatus(addPercentToString(movieFilterRequest.getTitle()), typeString,
+                    parseStringDate(movieFilterRequest.getCreatedAt(), movieFilterRequest.getIsBefore()), movieFilterRequest.getStatus(),
+                    new OffsetBasedPageRequest(movieFilterRequest.getOffset(), movieFilterRequest.getLimit(), buildSort(movieFilterRequest)));
         }
     }
 
@@ -226,7 +193,7 @@ public class MovieService {
                 .investment(movieEntity.getInvestment())
                 .imdbScore(movieEntity.getImdbScore())
                 .year(movieEntity.getYear())
-                .type(movieEntity.isOngoing())
+                .type(Type.fromString(movieEntity.getType()))
                 .confidential(movieEntity.isConfidential())
                 .actors(movieEntity.getActors())
                 .createdAt(movieEntity.getCreatedAt())

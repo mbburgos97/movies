@@ -10,6 +10,8 @@ import java.time.format.DateTimeFormatter;
 public class DateUtil {
 
     public static LocalDateTime parseStringDate(String date, Boolean isBefore) {
+        if (date == null) return null;
+
         LocalDate ld = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         if (isBefore) {
             return LocalDateTime.of(ld, LocalDateTime.MAX.toLocalTime());

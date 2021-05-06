@@ -1,14 +1,14 @@
 package com.theater.movies.service;
 
 import com.theater.movies.entity.ArtistEntity;
+import com.theater.movies.entity.OffsetBasedPageRequest;
 import com.theater.movies.enums.Status;
 import com.theater.movies.exception.ArtistNotFoundException;
-import com.theater.movies.model.Artist;
-import com.theater.movies.model.CommonResponse;
-import com.theater.movies.model.Response;
+import com.theater.movies.model.*;
 import com.theater.movies.repository.ArtistRepository;
 import com.theater.movies.util.ResponseBuilder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static com.theater.movies.enums.Status.ACTIVE;
+import static com.theater.movies.util.DateUtil.parseStringDate;
 import static com.theater.movies.util.FileUtil.saveFile;
+import static com.theater.movies.util.PageRequestUtil.*;
+import static com.theater.movies.util.StringUtil.addPercentToString;
 
 @Service
 @RequiredArgsConstructor
@@ -26,10 +30,36 @@ public class ArtistService {
 
     private final ArtistRepository artistRepository;
 
-    public Response getArtists() {
-        return ResponseBuilder.buildResponse(StreamSupport.stream(artistRepository.findAll().spliterator(), false)
-                .map(this::toModel)
-                .collect(Collectors.toList()));
+    public Response getArtists(ArtistFilterRequest artistFilterRequest, HttpServletRequest request) {
+        checkPageableRequestIfValid(artistFilterRequest);
+
+        var pagedArtists = getPagedArtistEntity(artistFilterRequest);
+        var totalElements = pagedArtists.getTotalElements();
+
+        return ResponseBuilder.buildResponse(ListResponse.builder()
+                .results(StreamSupport.stream(pagedArtists
+                        .spliterator(), false)
+                        .map(this::toModel)
+                        .collect(Collectors.toList()))
+                .count(totalElements)
+                .next(buildNextUri(request, pagedArtists, artistFilterRequest.getLimit()))
+                .previous(buildPreviousUri(request, pagedArtists, artistFilterRequest))
+                .build());
+    }
+
+    private Page<ArtistEntity> getPagedArtistEntity(ArtistFilterRequest artistFilterRequest) {
+        var isBefore = Optional.ofNullable(artistFilterRequest.getIsBefore()).orElse(true);
+        var status = Optional.ofNullable(artistFilterRequest.getStatus()).orElse(ACTIVE);
+
+        if (isBefore) {
+            return artistRepository.findAllByNameAndCreatedAtGreaterThanEqualAndStatus(addPercentToString(artistFilterRequest.getName()),
+                    parseStringDate(artistFilterRequest.getCreatedAt(), artistFilterRequest.getIsBefore()), status,
+                    new OffsetBasedPageRequest(artistFilterRequest.getOffset(), artistFilterRequest.getLimit()));
+        } else {
+            return artistRepository.findAllByNameAndCreatedAtLessThanEqualAndStatus(addPercentToString(artistFilterRequest.getName()),
+                    parseStringDate(artistFilterRequest.getCreatedAt(), artistFilterRequest.getIsBefore()), status,
+                    new OffsetBasedPageRequest(artistFilterRequest.getOffset(), artistFilterRequest.getLimit()));
+        }
     }
 
     public Response getArtist(Long id) {
@@ -41,7 +71,7 @@ public class ArtistService {
                 .imageUrl(saveFile(artist.getImage()))
                 .description(artist.getDescription())
                 .name(artist.getName())
-                .status(Status.ACTIVE)
+                .status(ACTIVE)
                 .createdAt(LocalDateTime.now())
                 .createdBy(request.getUserPrincipal().getName())
                 .build())));

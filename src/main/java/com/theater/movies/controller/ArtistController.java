@@ -2,6 +2,7 @@ package com.theater.movies.controller;
 
 import com.theater.movies.enums.Status;
 import com.theater.movies.model.Artist;
+import com.theater.movies.model.ArtistFilterRequest;
 import com.theater.movies.model.CommonResponse;
 import com.theater.movies.service.ArtistService;
 import lombok.RequiredArgsConstructor;
@@ -10,18 +11,30 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.math.BigDecimal;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/dashboard")
 @RequiredArgsConstructor
 public class ArtistController {
 
     private final ArtistService artistService;
 
     @GetMapping("/artists")
-    public CommonResponse getArtists() {
-        return artistService.getArtists();
+    public CommonResponse getArtists(@RequestParam(value = "offset", required = false) Long offset,
+                                     @RequestParam(value = "limit", required = false) Integer limit,
+                                     @RequestParam(value = "status", required = false) Integer status,
+                                     @RequestParam(value = "name", required = false) String name,
+                                     @RequestParam(value = "created_at", required = false) String createdAt,
+                                     @RequestParam(value = "is_before", required = false) Boolean isBefore,
+                                     HttpServletRequest request) {
+        return artistService.getArtists(ArtistFilterRequest.builder()
+                .limit(limit)
+                .offset(offset)
+                .status(Status.fromInteger(status))
+                .name(name)
+                .createdAt(createdAt)
+                .isBefore(isBefore)
+                .build(), request);
     }
 
     @GetMapping("/artist/{id}")

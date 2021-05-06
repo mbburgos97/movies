@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.theater.movies.enums.Status;
+import com.theater.movies.enums.Type;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,7 +45,7 @@ public class Movie {
 
     private String updatedBy;
 
-    private Boolean type;
+    private Type type;
 
     private Boolean confidential;
 

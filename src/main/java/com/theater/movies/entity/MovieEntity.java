@@ -1,13 +1,14 @@
 package com.theater.movies.entity;
 
 import com.theater.movies.enums.Status;
+import com.theater.movies.enums.Type;
 import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
+@Entity(name = "movies")
 @Builder
 @Table(name = "movies")
 @Getter
@@ -56,8 +57,7 @@ public class MovieEntity {
 
     private Integer payback;
 
-    @Column(name = "is_ongoing")
-    private boolean ongoing;
+    private String type;
 
     @Column(name = "is_confidential")
     private boolean confidential;

@@ -97,3 +97,6 @@ CHANGE COLUMN `description` `description` VARCHAR(1000) NULL DEFAULT NULL ;
 
 ALTER TABLE `movies`.`artists`
 ADD COLUMN `status` INT NULL DEFAULT NULL AFTER `description`;
+
+ALTER TABLE `movies`.`movies`
+CHANGE COLUMN `is_ongoing` `type` VARCHAR(45) NULL DEFAULT NULL ;

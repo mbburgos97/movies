@@ -1,6 +1,5 @@
 package com.theater.movies.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,10 +13,10 @@ public class AuthorizationConfiguration extends ResourceServerConfigurerAdapter 
         http.cors().and()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST,"/api/register").permitAll()
-                .antMatchers(HttpMethod.GET,"/api/movies").permitAll()
-                .antMatchers(HttpMethod.GET,"/api/artists").permitAll()
-                .antMatchers(HttpMethod.GET,"/api/artist/**").permitAll()
-                .antMatchers(HttpMethod.GET,"/api/movie/**").permitAll()
+                .antMatchers(HttpMethod.GET,"/member/movies").permitAll()
+                .antMatchers(HttpMethod.GET,"/member/artists").permitAll()
+                .antMatchers(HttpMethod.GET,"/member/artist/**").permitAll()
+                .antMatchers(HttpMethod.GET,"/member/movie/**").permitAll()
                 .anyRequest().authenticated();
     }
 }

@@ -77,6 +77,8 @@ public class UserService {
     public CommonResponse updateUser(Long id, User user, HttpServletRequest request) {
         var userEntity = checkUserExistence(id);
 
+        checkDuplicateUser(user.getUsername());
+
         Optional.of(user.getUsername())
                 .ifPresent(userEntity::setUsername);
         Optional.ofNullable(user.getPassword())

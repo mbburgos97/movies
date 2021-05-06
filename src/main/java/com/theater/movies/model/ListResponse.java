@@ -7,9 +7,9 @@ import java.util.List;
 
 @Builder
 @Getter
-public class MovieListResponse {
+public class ListResponse {
 
-    private List<Movie> movies;
+    private List<Object> results;
 
     private Long count;
 

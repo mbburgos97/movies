@@ -6,7 +6,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
+@Entity(name = "artists")
 @Builder
 @Table(name = "artists")
 @Getter

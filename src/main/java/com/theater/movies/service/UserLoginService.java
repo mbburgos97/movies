@@ -1,6 +1,8 @@
 package com.theater.movies.service;
 
 import com.theater.movies.enums.LoginStatus;
+import com.theater.movies.enums.Status;
+import com.theater.movies.exception.UserInactiveException;
 import com.theater.movies.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
@@ -22,6 +24,10 @@ public class UserLoginService implements UserDetailsService {
 
         userEntity.setLoginStatus(LoginStatus.ACTIVE);
         userRepository.save(userEntity);
+
+        if (userEntity.getStatus() == Status.INACTIVE) {
+            throw new UserInactiveException("User found is inactive.");
+        }
 
         return new User(userEntity.getUsername(), userEntity.getPassword(), List.of());
     }
