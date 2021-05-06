@@ -1,7 +1,6 @@
 package com.theater.movies.entity;
 
 import com.theater.movies.enums.Status;
-import com.theater.movies.enums.Type;
 import lombok.*;
 
 import javax.persistence.*;

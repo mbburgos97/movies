@@ -1,6 +1,5 @@
 package com.theater.movies.model;
 
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 

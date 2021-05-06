@@ -9,7 +9,6 @@ import com.theater.movies.exception.MovieNotFoundException;
 import com.theater.movies.model.*;
 import com.theater.movies.repository.MovieRepository;
 import com.theater.movies.util.ResponseBuilder;
-import com.theater.movies.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -29,7 +28,7 @@ import static com.theater.movies.enums.Status.ACTIVE;
 import static com.theater.movies.util.DateUtil.parseStringDate;
 import static com.theater.movies.util.FileUtil.saveFile;
 import static com.theater.movies.util.PageRequestUtil.*;
-import static com.theater.movies.util.StringUtil.*;
+import static com.theater.movies.util.StringUtil.addPercentToString;
 import static java.util.Optional.ofNullable;
 
 @Service
@@ -149,7 +148,6 @@ public class MovieService {
 
         return ResponseBuilder.buildResponse(toModel(movieRepository.save(movieEntity)));
     }
-
 
 
     private Page<MovieEntity> getPagedMovieEntity(MovieFilterRequest movieFilterRequest) {
