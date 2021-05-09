@@ -37,8 +37,16 @@ import static java.util.Optional.ofNullable;
 public class MovieService {
     private final MovieRepository movieRepository;
 
+    public Response getMoviesWithStatusFilter(MovieFilterRequest movieFilterRequest,
+                                              HttpServletRequest request) {
+        var status = Optional.ofNullable(movieFilterRequest.getStatus()).orElse(ACTIVE);
+        movieFilterRequest.setStatus(status);
+
+        return getMovies(movieFilterRequest, request);
+    }
+
     public Response getMovies(MovieFilterRequest movieFilterRequest,
-                              HttpServletRequest request) {
+                                              HttpServletRequest request) {
         checkPageableRequestIfValid(movieFilterRequest);
 
         var pagedMovies = getPagedMovieEntity(movieFilterRequest);
@@ -191,7 +199,7 @@ public class MovieService {
                 .investment(movieEntity.getInvestment())
                 .imdbScore(movieEntity.getImdbScore())
                 .year(movieEntity.getYear())
-                .type(Type.fromString(movieEntity.getType()))
+                .type(Type.valueOf(movieEntity.getType()))
                 .confidential(movieEntity.isConfidential())
                 .actors(movieEntity.getActors())
                 .createdAt(movieEntity.getCreatedAt())

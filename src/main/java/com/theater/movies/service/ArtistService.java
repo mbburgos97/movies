@@ -47,17 +47,23 @@ public class ArtistService {
                 .build());
     }
 
+    public Response getArtistsWithFilter(ArtistFilterRequest artistFilterRequest, HttpServletRequest request) {
+        var status = Optional.ofNullable(artistFilterRequest.getStatus()).orElse(ACTIVE);
+        artistFilterRequest.setStatus(status);
+
+        return getArtists(artistFilterRequest, request);
+    }
+
     private Page<ArtistEntity> getPagedArtistEntity(ArtistFilterRequest artistFilterRequest) {
         var isBefore = Optional.ofNullable(artistFilterRequest.getIsBefore()).orElse(true);
-        var status = Optional.ofNullable(artistFilterRequest.getStatus()).orElse(ACTIVE);
 
         if (isBefore) {
             return artistRepository.findAllByNameAndCreatedAtGreaterThanEqualAndStatus(addPercentToString(artistFilterRequest.getName()),
-                    parseStringDate(artistFilterRequest.getCreatedAt(), artistFilterRequest.getIsBefore()), status,
+                    parseStringDate(artistFilterRequest.getCreatedAt(), artistFilterRequest.getIsBefore()), artistFilterRequest.getStatus(),
                     new OffsetBasedPageRequest(artistFilterRequest.getOffset(), artistFilterRequest.getLimit()));
         } else {
             return artistRepository.findAllByNameAndCreatedAtLessThanEqualAndStatus(addPercentToString(artistFilterRequest.getName()),
-                    parseStringDate(artistFilterRequest.getCreatedAt(), artistFilterRequest.getIsBefore()), status,
+                    parseStringDate(artistFilterRequest.getCreatedAt(), artistFilterRequest.getIsBefore()), artistFilterRequest.getStatus(),
                     new OffsetBasedPageRequest(artistFilterRequest.getOffset(), artistFilterRequest.getLimit()));
         }
     }

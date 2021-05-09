@@ -13,12 +13,12 @@ import java.time.LocalDateTime;
 public interface ArtistRepository extends PagingAndSortingRepository<ArtistEntity, Long> {
 
     @Query("SELECT a FROM artists a WHERE (:name is null or a.name LIKE :name) " +
-            "AND (:createdAt is null or a.createdAt <= :createdAt) AND a.status = :status")
+            "AND (:createdAt is null or a.createdAt <= :createdAt) AND (:status is null or a.status = :status)")
     Page<ArtistEntity> findAllByNameAndCreatedAtGreaterThanEqualAndStatus(@Param("name") String name, @Param("createdAt") LocalDateTime createdAt,
                                                                           @Param("status") Status status, Pageable pageable);
 
     @Query("SELECT a FROM artists a WHERE (:name is null or a.name LIKE :name) " +
-            "AND (:createdAt is null or a.createdAt >= :createdAt) AND a.status = :status")
+            "AND (:createdAt is null or a.createdAt >= :createdAt) AND (:status is null or a.status = :status)")
     Page<ArtistEntity> findAllByNameAndCreatedAtLessThanEqualAndStatus(@Param("name") String name, @Param("createdAt") LocalDateTime createdAt,
                                                                        @Param("status") Status status, Pageable pageable);
 

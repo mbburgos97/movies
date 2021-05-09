@@ -32,7 +32,7 @@ public class PublicApiController {
                                     @RequestParam(value = "is_ascending", required = false) Boolean isAscending,
                                     @RequestParam(value = "is_before", required = false) Boolean isBefore,
                                     HttpServletRequest request) {
-        return movieService.getMovies(MovieFilterRequest.builder()
+        return movieService.getMoviesWithStatusFilter(MovieFilterRequest.builder()
                 .status(Status.fromInteger(status))
                 .title(title)
                 .type(Type.fromString(type))
@@ -58,7 +58,7 @@ public class PublicApiController {
                                      @RequestParam(value = "created_at", required = false) String createdAt,
                                      @RequestParam(value = "is_before", required = false) Boolean isBefore,
                                      HttpServletRequest request) {
-        return artistService.getArtists(ArtistFilterRequest.builder()
+        return artistService.getArtistsWithFilter(ArtistFilterRequest.builder()
                 .limit(limit)
                 .offset(offset)
                 .status(Status.fromInteger(status))

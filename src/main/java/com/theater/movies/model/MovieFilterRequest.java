@@ -3,12 +3,14 @@ package com.theater.movies.model;
 import com.theater.movies.enums.Status;
 import com.theater.movies.enums.Type;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Getter
 public class MovieFilterRequest extends PageableRequest {
 
+    @Setter
     private Status status;
 
     private String title;

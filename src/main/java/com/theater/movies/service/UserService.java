@@ -6,10 +6,7 @@ import com.theater.movies.enums.LoginStatus;
 import com.theater.movies.enums.Status;
 import com.theater.movies.exception.BadArgumentException;
 import com.theater.movies.exception.DuplicateUsernameException;
-import com.theater.movies.model.CommonResponse;
-import com.theater.movies.model.PageableRequest;
-import com.theater.movies.model.Response;
-import com.theater.movies.model.User;
+import com.theater.movies.model.*;
 import com.theater.movies.repository.UserRepository;
 import com.theater.movies.util.ResponseBuilder;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +23,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static com.theater.movies.util.PageRequestUtil.checkPageableRequestIfValid;
+import static com.theater.movies.util.PageRequestUtil.*;
 
 @Service
 @RequiredArgsConstructor
@@ -107,13 +104,20 @@ public class UserService {
         return ResponseBuilder.buildResponse(toModel(userRepository.save(userEntity)));
     }
 
-    public Response getUsers(PageableRequest pageableRequest) {
+    public Response getUsers(PageableRequest pageableRequest, HttpServletRequest request) {
         checkPageableRequestIfValid(pageableRequest);
 
-        return ResponseBuilder.buildResponse(StreamSupport.stream(userRepository.findAll(
-                new OffsetBasedPageRequest(pageableRequest.getOffset(), pageableRequest.getLimit())).spliterator(), false)
-                .map(this::toModel)
-                .collect(Collectors.toList()));
+        var pagedUsers = userRepository.findAll(
+                new OffsetBasedPageRequest(pageableRequest.getOffset(), pageableRequest.getLimit()));
+
+        return ResponseBuilder.buildResponse(ListResponse.builder()
+                .results(StreamSupport.stream(pagedUsers.spliterator(), false)
+                        .map(this::toModel)
+                        .collect(Collectors.toList()))
+                .count(pagedUsers.getTotalElements())
+                .next(buildNextUri(request, pagedUsers, pageableRequest.getLimit()))
+                .previous(buildPreviousUri(request, pagedUsers, pageableRequest))
+                .build());
     }
 
     public Response getUser(Long id) {
@@ -125,8 +129,8 @@ public class UserService {
         var authorization = request.getHeader("Authorization");
         var user = userRepository.findByUsername(request.getUserPrincipal().getName());
 
-        if (authorization != null && authorization.contains("Bearer")){
-            String tokenId = authorization.substring("Bearer".length()+1);
+        if (authorization != null && authorization.contains("Bearer")) {
+            String tokenId = authorization.substring("Bearer".length() + 1);
             tokenServices.revokeToken(tokenId);
 
             user.ifPresent(userEntity -> {

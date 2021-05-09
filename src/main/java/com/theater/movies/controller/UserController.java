@@ -18,8 +18,8 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/users")
-    public CommonResponse getUsers(PageableRequest pageableRequest) {
-        return userService.getUsers(pageableRequest);
+    public CommonResponse getUsers(PageableRequest pageableRequest, HttpServletRequest request) {
+        return userService.getUsers(pageableRequest, request);
     }
 
     @GetMapping("/user/{id}")
