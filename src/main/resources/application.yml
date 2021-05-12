@@ -4,7 +4,7 @@ spring:
       use-new-id-generator-mappings: false
   datasource:
     username: root
-    password: root
+    password: U)S#<=Uo,0v<
     url: jdbc:mysql://localhost:3306/movies?useSSL=false
     driver-class-name: com.mysql.cj.jdbc.Driver
   servlet:
@@ -22,4 +22,5 @@ security:
       client-id: first-client
       client-secret: noonewilleverguess
       access-token-validity-seconds: 5400
-
+server:
+  port: 8082

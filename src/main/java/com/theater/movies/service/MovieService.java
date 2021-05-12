@@ -2,12 +2,14 @@ package com.theater.movies.service;
 
 import com.theater.movies.entity.MovieEntity;
 import com.theater.movies.entity.OffsetBasedPageRequest;
+import com.theater.movies.enums.FileType;
 import com.theater.movies.enums.Status;
 import com.theater.movies.enums.Type;
 import com.theater.movies.exception.BadArgumentException;
 import com.theater.movies.exception.MovieNotFoundException;
 import com.theater.movies.model.*;
 import com.theater.movies.repository.MovieRepository;
+import com.theater.movies.util.FileUtil;
 import com.theater.movies.util.ResponseBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -24,6 +26,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static com.theater.movies.enums.FileType.IMAGE;
+import static com.theater.movies.enums.FileType.VIDEO;
 import static com.theater.movies.enums.Status.ACTIVE;
 import static com.theater.movies.util.DateUtil.parseStringDate;
 import static com.theater.movies.util.FileUtil.saveFile;
@@ -189,8 +193,8 @@ public class MovieService {
         return Movie.builder()
                 .id(movieEntity.getId())
                 .title(movieEntity.getTitle())
-                .imageUrl(movieEntity.getImageUrl())
-                .videoUrl(movieEntity.getVideoUrl())
+                .imageUrl(FileUtil.getFilePath(movieEntity.getImageUrl(), IMAGE))
+                .videoUrl(FileUtil.getFilePath(movieEntity.getVideoUrl(), VIDEO))
                 .content(movieEntity.getContent())
                 .awards(parseAwards(movieEntity.getAwards()))
                 .payback(movieEntity.getPayback())

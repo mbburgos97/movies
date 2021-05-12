@@ -1,5 +1,6 @@
 package com.theater.movies.util;
 
+import com.theater.movies.enums.FileType;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,7 +16,15 @@ import java.util.UUID;
 @Slf4j
 public class FileUtil {
 
-    private final static String UPLOAD_FOLDER = "C:\\Uploads\\";
+    public final static String UPLOAD_FOLDER = "C:\\Uploads\\";
+
+    public static String getFilePath(String filename, FileType fileType) {
+        switch (fileType) {
+            case VIDEO: return "/video/" + filename;
+            case IMAGE: return "/image/" + filename;
+        }
+        return null;
+    }
 
     public static String saveFile(MultipartFile file) {
         if (!file.isEmpty()) {
@@ -24,9 +33,20 @@ public class FileUtil {
             try {
                 Files.write(path, file.getBytes());
             } catch (IOException e) {
-                log.info("File uploaded is empty!");
+                log.info("Error saving file {}", file.getOriginalFilename(), e);
             }
             return filename;
+        }
+        return null;
+    }
+
+    public static byte[] getFile(String filename) {
+        Path path = Paths.get(UPLOAD_FOLDER + filename);
+
+        try {
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
+            log.error("Error found when reading {}", filename, e);
         }
         return null;
     }

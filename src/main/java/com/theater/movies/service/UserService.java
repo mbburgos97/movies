@@ -79,7 +79,7 @@ public class UserService {
 
         checkDuplicateUser(user.getUsername());
 
-        Optional.of(user.getUsername())
+        Optional.ofNullable(user.getUsername())
                 .ifPresent(userEntity::setUsername);
         Optional.ofNullable(user.getPassword())
                 .ifPresent(password -> userEntity.setPassword(passwordEncoder.encode(password)));

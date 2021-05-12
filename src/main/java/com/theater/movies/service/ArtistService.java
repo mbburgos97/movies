@@ -2,10 +2,12 @@ package com.theater.movies.service;
 
 import com.theater.movies.entity.ArtistEntity;
 import com.theater.movies.entity.OffsetBasedPageRequest;
+import com.theater.movies.enums.FileType;
 import com.theater.movies.enums.Status;
 import com.theater.movies.exception.ArtistNotFoundException;
 import com.theater.movies.model.*;
 import com.theater.movies.repository.ArtistRepository;
+import com.theater.movies.util.FileUtil;
 import com.theater.movies.util.ResponseBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,6 +20,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static com.theater.movies.enums.FileType.IMAGE;
 import static com.theater.movies.enums.Status.ACTIVE;
 import static com.theater.movies.util.DateUtil.parseStringDate;
 import static com.theater.movies.util.FileUtil.saveFile;
@@ -130,7 +133,7 @@ public class ArtistService {
         return Artist.builder()
                 .id(artistEntity.getId())
                 .description(artistEntity.getDescription())
-                .imageUrl(artistEntity.getImageUrl())
+                .imageUrl(FileUtil.getFilePath(artistEntity.getImageUrl(), IMAGE))
                 .name(artistEntity.getName())
                 .status(artistEntity.getStatus())
                 .updatedBy(artistEntity.getUpdatedBy())

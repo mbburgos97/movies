@@ -12,11 +12,13 @@ public class AuthorizationConfiguration extends ResourceServerConfigurerAdapter 
     public void configure(HttpSecurity http) throws Exception {
         http.cors().and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST,"/api/register").permitAll()
+                .antMatchers(HttpMethod.POST,"/dashboard/register").permitAll()
                 .antMatchers(HttpMethod.GET,"/member/movies").permitAll()
                 .antMatchers(HttpMethod.GET,"/member/artists").permitAll()
                 .antMatchers(HttpMethod.GET,"/member/artist/**").permitAll()
                 .antMatchers(HttpMethod.GET,"/member/movie/**").permitAll()
+                .antMatchers(HttpMethod.GET,"/image/**").permitAll()
+                .antMatchers(HttpMethod.GET,"/video/**").permitAll()
                 .anyRequest().authenticated();
     }
 }
