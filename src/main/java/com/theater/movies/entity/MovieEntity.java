@@ -5,7 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity(name = "movies")
 @Builder
@@ -28,11 +28,11 @@ public class MovieEntity {
 
     private String content;
 
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 
     private String createdBy;
 
-    private LocalDateTime updatedAt;
+    private OffsetDateTime updatedAt;
 
     private String updatedBy;
 

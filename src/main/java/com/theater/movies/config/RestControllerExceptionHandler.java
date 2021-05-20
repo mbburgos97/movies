@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @ControllerAdvice
 public class RestControllerExceptionHandler extends ResponseEntityExceptionHandler {
@@ -26,7 +26,7 @@ public class RestControllerExceptionHandler extends ResponseEntityExceptionHandl
             ArtistNotFoundException.class})
     public CommonResponse handleDuplicate(Exception ex) {
         return CommonResponse.builder()
-                .timestamp(LocalDateTime.now())
+                .timestamp(OffsetDateTime.now())
                 .status(HttpStatus.BAD_REQUEST)
                 .message(ex.getMessage())
                 .build();

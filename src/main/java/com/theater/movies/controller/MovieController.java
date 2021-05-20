@@ -92,20 +92,20 @@ public class MovieController {
     }
 
     @PutMapping("/movie/{id}")
-    public CommonResponse updateMovie(@PathVariable Long id, @RequestParam("title") String title,
-                                      @RequestParam("video") MultipartFile video,
-                                      @RequestParam("image") MultipartFile image,
-                                      @RequestParam("content") String content,
-                                      @RequestParam("year") Integer year,
-                                      @RequestParam("director") String director,
-                                      @RequestParam("actors") String actors,
-                                      @RequestParam("type") String type,
-                                      @RequestParam("confidential") Boolean confidential,
-                                      @RequestParam("awards") List<String> awards,
-                                      @RequestParam("imdb_score") BigDecimal imdbScore,
-                                      @RequestParam("investment") Long investment,
-                                      @RequestParam("return") Long returnValue,
-                                      @RequestParam("payback") Integer payback,
+    public CommonResponse updateMovie(@PathVariable Long id, @RequestParam(value = "title", required = false) String title,
+                                      @RequestParam(value = "video", required = false) MultipartFile video,
+                                      @RequestParam(value = "image", required = false) MultipartFile image,
+                                      @RequestParam(value = "content", required = false) String content,
+                                      @RequestParam(value = "year", required = false) Integer year,
+                                      @RequestParam(value = "director", required = false) String director,
+                                      @RequestParam(value = "actors", required = false) String actors,
+                                      @RequestParam(value = "type", required = false) String type,
+                                      @RequestParam(value = "confidential", required = false) Boolean confidential,
+                                      @RequestParam(value = "awards", required = false) List<String> awards,
+                                      @RequestParam(value = "imdb_score", required = false) BigDecimal imdbScore,
+                                      @RequestParam(value = "investment", required = false) Long investment,
+                                      @RequestParam(value = "return", required = false) Long returnValue,
+                                      @RequestParam(value = "payback", required = false) Integer payback,
                                       HttpServletRequest request) {
 
         return movieService.updateMovie(Movie.builder()

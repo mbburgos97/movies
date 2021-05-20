@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @UtilityClass
 public class ResponseBuilder {
@@ -17,7 +17,7 @@ public class ResponseBuilder {
         return Response.builder()
                 .data(responseBody)
                 .message(SUCCESS)
-                .timestamp(LocalDateTime.now())
+                .timestamp(OffsetDateTime.now())
                 .status(HttpStatus.OK)
                 .build();
     }

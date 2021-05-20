@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -42,7 +42,7 @@ public class UserService {
         return ResponseBuilder.buildResponse(toModel(userRepository.save(UserEntity.builder()
                 .username(user.getUsername())
                 .password(passwordEncoder.encode(user.getPassword()))
-                .createdAt(LocalDateTime.now())
+                .createdAt(OffsetDateTime.now())
                 .createdBy(request.getUserPrincipal().getName())
                 .loginStatus(LoginStatus.OFFLINE)
                 .memo(user.getMemo())
@@ -56,7 +56,7 @@ public class UserService {
         return ResponseBuilder.buildResponse(toModel(userRepository.save(UserEntity.builder()
                 .username(user.getUsername())
                 .password(passwordEncoder.encode(user.getPassword()))
-                .createdAt(LocalDateTime.now())
+                .createdAt(OffsetDateTime.now())
                 .loginStatus(LoginStatus.OFFLINE)
                 .memo(user.getMemo())
                 .status(Status.ACTIVE)
@@ -69,7 +69,7 @@ public class UserService {
         userRepository.deleteById(userEntity.getId());
         return CommonResponse.builder()
                 .status(HttpStatus.OK)
-                .timestamp(LocalDateTime.now())
+                .timestamp(OffsetDateTime.now())
                 .message("Successfully deleted user.")
                 .build();
     }
@@ -86,7 +86,7 @@ public class UserService {
         Optional.ofNullable(user.getMemo())
                 .ifPresent(userEntity::setMemo);
 
-        userEntity.setUpdatedAt(LocalDateTime.now());
+        userEntity.setUpdatedAt(OffsetDateTime.now());
         userEntity.setUpdatedBy(request.getUserPrincipal().getName());
 
         return ResponseBuilder.buildResponse(toModel(userRepository.save(userEntity)));
@@ -98,7 +98,7 @@ public class UserService {
         Optional.of(status)
                 .ifPresent(userEntity::setStatus);
 
-        userEntity.setUpdatedAt(LocalDateTime.now());
+        userEntity.setUpdatedAt(OffsetDateTime.now());
         userEntity.setUpdatedBy(request.getUserPrincipal().getName());
 
         return ResponseBuilder.buildResponse(toModel(userRepository.save(userEntity)));
@@ -141,7 +141,7 @@ public class UserService {
             return CommonResponse.builder()
                     .status(HttpStatus.OK)
                     .message("Successfully logout.")
-                    .timestamp(LocalDateTime.now())
+                    .timestamp(OffsetDateTime.now())
                     .build();
         }
 
@@ -155,7 +155,7 @@ public class UserService {
 
         if (passwordEncoder.matches(oldPassword, userEntity.getPassword())) {
             userEntity.setPassword(passwordEncoder.encode(newPassword));
-            userEntity.setUpdatedAt(LocalDateTime.now());
+            userEntity.setUpdatedAt(OffsetDateTime.now());
             userEntity.setUpdatedBy(request.getUserPrincipal().getName());
             return ResponseBuilder.buildResponse(toModel(userRepository.save(userEntity)));
         }

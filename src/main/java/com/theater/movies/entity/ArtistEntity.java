@@ -4,7 +4,7 @@ import com.theater.movies.enums.Status;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity(name = "artists")
 @Builder
@@ -27,11 +27,11 @@ public class ArtistEntity {
 
     private Status status;
 
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 
     private String createdBy;
 
-    private LocalDateTime updatedAt;
+    private OffsetDateTime updatedAt;
 
     private String updatedBy;
 }

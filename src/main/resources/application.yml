@@ -1,4 +1,46 @@
+security:
+  oauth2:
+    authorization:
+      check-token-access: isAuthenticated()
+    client:
+      client-id: first-client
+      client-secret: noonewilleverguess
+      access-token-validity-seconds: 5400
+#server:
+#  port: 8082
 spring:
+  profiles:
+    active: local
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: local
+  jpa:
+    hibernate:
+      use-new-id-generator-mappings: false
+  datasource:
+    username: root
+    password: root
+    url: jdbc:mysql://localhost:3306/movies?useSSL=false
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 215MB
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+file:
+  folder: C:\Uploads\
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
   jpa:
     hibernate:
       use-new-id-generator-mappings: false
@@ -13,14 +55,6 @@ spring:
       max-request-size: 215MB
   jackson:
     property-naming-strategy: SNAKE_CASE
+file:
+  folder: /home/ec2-user/uploads/
 
-security:
-  oauth2:
-    authorization:
-      check-token-access: isAuthenticated()
-    client:
-      client-id: first-client
-      client-secret: noonewilleverguess
-      access-token-validity-seconds: 5400
-server:
-  port: 8082

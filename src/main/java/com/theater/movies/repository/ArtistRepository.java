@@ -8,18 +8,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public interface ArtistRepository extends PagingAndSortingRepository<ArtistEntity, Long> {
 
     @Query("SELECT a FROM artists a WHERE (:name is null or a.name LIKE :name) " +
             "AND (:createdAt is null or a.createdAt <= :createdAt) AND (:status is null or a.status = :status)")
-    Page<ArtistEntity> findAllByNameAndCreatedAtGreaterThanEqualAndStatus(@Param("name") String name, @Param("createdAt") LocalDateTime createdAt,
+    Page<ArtistEntity> findAllByNameAndCreatedAtGreaterThanEqualAndStatus(@Param("name") String name, @Param("createdAt") OffsetDateTime createdAt,
                                                                           @Param("status") Status status, Pageable pageable);
 
     @Query("SELECT a FROM artists a WHERE (:name is null or a.name LIKE :name) " +
             "AND (:createdAt is null or a.createdAt >= :createdAt) AND (:status is null or a.status = :status)")
-    Page<ArtistEntity> findAllByNameAndCreatedAtLessThanEqualAndStatus(@Param("name") String name, @Param("createdAt") LocalDateTime createdAt,
+    Page<ArtistEntity> findAllByNameAndCreatedAtLessThanEqualAndStatus(@Param("name") String name, @Param("createdAt") OffsetDateTime createdAt,
                                                                        @Param("status") Status status, Pageable pageable);
 
 }

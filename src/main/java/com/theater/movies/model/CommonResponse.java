@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.http.HttpStatus;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @SuperBuilder
 @Getter
@@ -15,7 +15,7 @@ public class CommonResponse {
 
     protected HttpStatus status;
 
-    protected LocalDateTime timestamp;
+    protected OffsetDateTime timestamp;
 
     protected String message;
 }

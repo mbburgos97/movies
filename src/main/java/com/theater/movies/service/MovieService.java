@@ -2,7 +2,6 @@ package com.theater.movies.service;
 
 import com.theater.movies.entity.MovieEntity;
 import com.theater.movies.entity.OffsetBasedPageRequest;
-import com.theater.movies.enums.FileType;
 import com.theater.movies.enums.Status;
 import com.theater.movies.enums.Type;
 import com.theater.movies.exception.BadArgumentException;
@@ -18,7 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -83,14 +82,14 @@ public class MovieService {
                 .content(movie.getContent())
                 .director(movie.getDirector())
                 .imdbScore(movie.getImdbScore())
-                .returnRate(Math.toIntExact(movie.getInvestment() * 100 / movie.getReturnValue()))
+                .returnRate(Math.toIntExact(movie.getReturnValue() * 100 / movie.getInvestment()))
                 .returnValue(movie.getReturnValue())
                 .payback(movie.getPayback())
                 .type(movie.getType().name())
                 .year(movie.getYear())
                 .investment(movie.getInvestment())
                 .status(ACTIVE)
-                .createdAt(LocalDateTime.now())
+                .createdAt(OffsetDateTime.now())
                 .createdBy(request.getUserPrincipal().getName())
                 .awards(String.join(",", movie.getAwards()))
                 .actors(movie.getActors())
@@ -102,7 +101,7 @@ public class MovieService {
 
         movieRepository.deleteById(movieEntity.getId());
         return CommonResponse.builder()
-                .timestamp(LocalDateTime.now())
+                .timestamp(OffsetDateTime.now())
                 .message("Successfully deleted movie.")
                 .status(HttpStatus.OK)
                 .build();
@@ -116,35 +115,41 @@ public class MovieService {
             throw new BadArgumentException("Movie cannot be confidential if it is not ongoing.");
         }
 
-        Optional.of(movie.getTitle())
+        Optional.ofNullable(movie.getTitle())
                 .ifPresent(movieEntity::setTitle);
-        Optional.of(movie.getImage())
-                .ifPresent(image -> movieEntity.setImageUrl(saveFile(image)));
-        Optional.of(movie.getVideo())
-                .ifPresent(video -> movieEntity.setVideoUrl(saveFile(video)));
-        Optional.of(movie.getAwards())
+        Optional.ofNullable(movie.getImage())
+                .ifPresent(image -> {
+                    FileUtil.deleteFile(movieEntity.getImageUrl());;
+                    movieEntity.setImageUrl(saveFile(image));
+                });
+        Optional.ofNullable(movie.getVideo())
+                .ifPresent(video -> {
+                    FileUtil.deleteFile(movieEntity.getVideoUrl());
+                    movieEntity.setVideoUrl(saveFile(video));
+                });
+        Optional.ofNullable(movie.getAwards())
                 .ifPresent(awards -> movieEntity.setAwards(String.join(",", awards)));
-        Optional.of(movie.getActors())
+        Optional.ofNullable(movie.getActors())
                 .ifPresent(movieEntity::setActors);
-        Optional.of(movie.getDirector())
+        Optional.ofNullable(movie.getDirector())
                 .ifPresent(movieEntity::setDirector);
-        Optional.of(movie.getInvestment())
+        Optional.ofNullable(movie.getInvestment())
                 .ifPresent(movieEntity::setInvestment);
-        Optional.of(movie.getPayback())
+        Optional.ofNullable(movie.getPayback())
                 .ifPresent(movieEntity::setPayback);
-        Optional.of(movie.getReturnValue())
+        Optional.ofNullable(movie.getReturnValue())
                 .ifPresent(movieEntity::setReturnValue);
-        Optional.of(movie.getImdbScore())
+        Optional.ofNullable(movie.getImdbScore())
                 .ifPresent(movieEntity::setImdbScore);
-        Optional.of(movie.getYear())
+        Optional.ofNullable(movie.getYear())
                 .ifPresent(movieEntity::setYear);
-        Optional.of(movie.getType())
+        Optional.ofNullable(movie.getType())
                 .ifPresent(type -> movieEntity.setType(type.name()));
-        Optional.of(movie.getConfidential())
+        Optional.ofNullable(movie.getConfidential())
                 .ifPresent(movieEntity::setConfidential);
-        Optional.of(movie.getContent())
+        Optional.ofNullable(movie.getContent())
                 .ifPresent(movieEntity::setContent);
-        movieEntity.setUpdatedAt(LocalDateTime.now());
+        movieEntity.setUpdatedAt(OffsetDateTime.now());
         movieEntity.setUpdatedBy(request.getUserPrincipal().getName());
         movieEntity.setReturnRate(Math.toIntExact(movieEntity.getInvestment() * 100 / movieEntity.getReturnValue()));
         return ResponseBuilder.buildResponse(toModel(movieRepository.save(movieEntity)));
@@ -155,7 +160,7 @@ public class MovieService {
 
         Optional.of(status)
                 .ifPresent(movieEntity::setStatus);
-        movieEntity.setUpdatedAt(LocalDateTime.now());
+        movieEntity.setUpdatedAt(OffsetDateTime.now());
         movieEntity.setUpdatedBy(request.getUserPrincipal().getName());
 
         return ResponseBuilder.buildResponse(toModel(movieRepository.save(movieEntity)));

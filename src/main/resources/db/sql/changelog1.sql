@@ -100,3 +100,18 @@ ADD COLUMN `status` INT NULL DEFAULT NULL AFTER `description`;
 
 ALTER TABLE `movies`.`movies`
 CHANGE COLUMN `is_ongoing` `type` VARCHAR(45) NULL DEFAULT NULL ;
+
+ALTER TABLE `movies`.`movies`
+CHANGE COLUMN `imdb_score` `imdb_score` FLOAT NULL DEFAULT NULL ;
+
+
+CREATE TABLE `movies`.`company_logos` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `image_url` VARCHAR(45) NULL,
+  `status` INT NULL,
+  `website_link` VARCHAR(64) NULL,
+  `created_by` VARCHAR(45) NULL,
+  `created_at` TIMESTAMP NULL,
+  `updated_by` VARCHAR(45) NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`));

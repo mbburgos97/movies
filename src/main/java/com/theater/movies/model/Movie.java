@@ -12,7 +12,7 @@ import lombok.Getter;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Builder
@@ -37,11 +37,11 @@ public class Movie {
 
     private String content;
 
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 
     private String createdBy;
 
-    private LocalDateTime updatedAt;
+    private OffsetDateTime updatedAt;
 
     private String updatedBy;
 

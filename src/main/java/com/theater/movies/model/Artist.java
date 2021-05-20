@@ -9,7 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Builder
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
@@ -30,11 +30,11 @@ public class Artist {
 
     private Status status;
 
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 
     private String createdBy;
 
-    private LocalDateTime updatedAt;
+    private OffsetDateTime updatedAt;
 
     private String updatedBy;
 }

@@ -2,7 +2,6 @@ package com.theater.movies.service;
 
 import com.theater.movies.entity.ArtistEntity;
 import com.theater.movies.entity.OffsetBasedPageRequest;
-import com.theater.movies.enums.FileType;
 import com.theater.movies.enums.Status;
 import com.theater.movies.exception.ArtistNotFoundException;
 import com.theater.movies.model.*;
@@ -15,7 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -81,7 +80,7 @@ public class ArtistService {
                 .description(artist.getDescription())
                 .name(artist.getName())
                 .status(ACTIVE)
-                .createdAt(LocalDateTime.now())
+                .createdAt(OffsetDateTime.now())
                 .createdBy(request.getUserPrincipal().getName())
                 .build())));
     }
@@ -89,14 +88,17 @@ public class ArtistService {
     public Response updateArtist(Artist artist, HttpServletRequest request) {
         var artistEntity = getArtistById(artist.getId());
 
-        Optional.of(artist.getName())
+        Optional.ofNullable(artist.getName())
                 .ifPresent(artistEntity::setName);
-        Optional.of(artist.getImage())
-                .ifPresent(image -> artistEntity.setImageUrl(saveFile(image)));
-        Optional.of(artist.getDescription())
+        Optional.ofNullable(artist.getImage())
+                .ifPresent(image -> {
+                    FileUtil.deleteFile(artistEntity.getImageUrl());
+                    artistEntity.setImageUrl(saveFile(image));
+                });
+        Optional.ofNullable(artist.getDescription())
                 .ifPresent(artistEntity::setDescription);
 
-        artistEntity.setUpdatedAt(LocalDateTime.now());
+        artistEntity.setUpdatedAt(OffsetDateTime.now());
         artistEntity.setUpdatedBy(request.getUserPrincipal().getName());
 
         return ResponseBuilder.buildResponse(toModel(artistRepository.save(artistEntity)));
@@ -107,7 +109,7 @@ public class ArtistService {
 
         Optional.of(status)
                 .ifPresent(artistEntity::setStatus);
-        artistEntity.setUpdatedAt(LocalDateTime.now());
+        artistEntity.setUpdatedAt(OffsetDateTime.now());
         artistEntity.setUpdatedBy(request.getUserPrincipal().getName());
 
         return ResponseBuilder.buildResponse(toModel(artistRepository.save(artistEntity)));
@@ -118,7 +120,7 @@ public class ArtistService {
 
         artistRepository.deleteById(artistEntity.getId());
         return CommonResponse.builder()
-                .timestamp(LocalDateTime.now())
+                .timestamp(OffsetDateTime.now())
                 .message("Successfully deleted artist.")
                 .status(HttpStatus.OK)
                 .build();

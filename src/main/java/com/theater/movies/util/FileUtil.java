@@ -3,6 +3,9 @@ package com.theater.movies.util;
 import com.theater.movies.enums.FileType;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -16,14 +19,23 @@ import java.util.UUID;
 @Slf4j
 public class FileUtil {
 
-    public final static String UPLOAD_FOLDER = "C:\\Uploads\\";
+    public static String UPLOAD_FOLDER;
 
     public static String getFilePath(String filename, FileType fileType) {
+
         switch (fileType) {
             case VIDEO: return "/video/" + filename;
             case IMAGE: return "/image/" + filename;
         }
         return null;
+    }
+
+    public static void deleteFile(String filename) {
+        try {
+            Files.delete(Paths.get(UPLOAD_FOLDER + filename));
+        } catch (IOException e) {
+            log.error("Problem with deleting file {}", filename);
+        }
     }
 
     public static String saveFile(MultipartFile file) {

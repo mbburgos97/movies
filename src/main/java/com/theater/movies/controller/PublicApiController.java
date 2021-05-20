@@ -5,7 +5,9 @@ import com.theater.movies.enums.Type;
 import com.theater.movies.model.ArtistFilterRequest;
 import com.theater.movies.model.CommonResponse;
 import com.theater.movies.model.MovieFilterRequest;
+import com.theater.movies.model.PageableRequest;
 import com.theater.movies.service.ArtistService;
+import com.theater.movies.service.CompanyLogoService;
 import com.theater.movies.service.MovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,8 @@ public class PublicApiController {
     private final MovieService movieService;
 
     private final ArtistService artistService;
+
+    private final CompanyLogoService companyLogoService;
 
     @GetMapping("/movies")
     public CommonResponse getMovies(@RequestParam(value = "offset", required = false) Long offset,
@@ -71,6 +75,21 @@ public class PublicApiController {
     @GetMapping("/artist/{id}")
     public CommonResponse getArtist(@PathVariable("id") Long id) {
         return artistService.getArtist(id);
+    }
+
+    @GetMapping("/logo/{id}")
+    public CommonResponse getCompanyLogo(@PathVariable("id") Long id) {
+        return companyLogoService.getCompanyLogo(id);
+    }
+
+    @GetMapping("/logos")
+    public CommonResponse getCompanyLogos(@RequestParam(value = "offset", required = false) Long offset,
+                                          @RequestParam(value = "limit", required = false) Integer limit,
+                                          HttpServletRequest request) {
+        return companyLogoService.getAllActiveCompanyLogos(PageableRequest.builder()
+                .limit(limit)
+                .offset(offset)
+                .build(), request);
     }
 
 }

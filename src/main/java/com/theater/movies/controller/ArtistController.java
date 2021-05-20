@@ -56,9 +56,9 @@ public class ArtistController {
 
     @PutMapping(value = "/artist/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE} )
     public CommonResponse updateArtist(@PathVariable("id") Long id,
-                                       @RequestParam("name") String name,
-                                       @RequestParam("image") MultipartFile image,
-                                       @RequestParam("description") String description,
+                                       @RequestParam(value = "name", required = false) String name,
+                                       @RequestParam(value = "image", required = false) MultipartFile image,
+                                       @RequestParam(value = "description", required = false) String description,
                                        HttpServletRequest request) {
         return artistService.updateArtist(Artist.builder()
                 .id(id)
